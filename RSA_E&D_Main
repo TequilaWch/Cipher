@@ -1,0 +1,134 @@
+#include <iostream>
+#include<fstream>
+#include <string>
+#include<stdlib.h>
+#include"bigInt.h"
+#include"prime.h"
+using namespace std;
+class RSA
+{
+private:
+	bi p, q, d, pi;
+public:
+	bi e, n;
+	bi m, c;
+	RSA(bi a, bi b)
+	{
+		bi one("1");
+		p = a;
+		q = b;
+		n = p * q;
+		pi = (p - one)*(q - one);
+		bi curr("10001");
+		e = curr;
+		d = e.inv(pi);
+	}
+	void encode(bi m1)
+	{
+		m = m1;
+		c = m.exp(e, n);
+	}
+	void decode(bi c1)
+	{
+		c = c1;
+		m = c.exp(d, n);
+	}
+	void show(int i)
+	{
+		if (i == 1) {
+			cout << "公钥n(hex)：" << endl;
+			n.out();
+			cout << "私钥d(hex)：" << endl;
+			d.out();
+			cout << "公钥e(hex)：" << endl;
+			e.out();
+			cout << "明文(hex)：" << endl;
+			m.out();
+		}
+		else {
+			cout << "公钥n(hex)：" << endl;
+			n.out();
+			cout << "私钥d(hex)：" << endl;
+			d.out();
+			cout << "公钥e(hex)：" << endl;
+			e.out();
+			cout << "密文(hex)：" << endl;
+			c.out();
+		}
+	}
+};
+int main()
+{
+	cout << "--------------------Cipher04--RSA--------------------" << endl;
+	cout << "0:Exit       1:Encode       2:Decode       3:GetPrime" << endl;
+	cout << "Input 0-3: ";
+	int i; cin >> i;
+	while (i != 0)
+	{
+		cin.get();
+		if (i == 1) {
+			cout << "请输入大素数p：" << endl;
+			string p;
+			getline(cin, p);
+			cout << "请输入大素数q：" << endl;
+			string q;
+			getline(cin, q);
+			cout << "请输入明文(hex)：" << endl;
+			string m;
+			getline(cin, m);
+			RSA rsa(p, q);
+			rsa.encode(m);
+			rsa.show(2);
+		}
+		if (i == 2) {
+			cout << "请输入大素数p：" << endl;
+			string p;
+			getline(cin, p);
+			cout << "请输入大素数q：" << endl;
+			string q;
+			getline(cin, q);
+			cout << "请输入密文(hex)：" << endl;
+			string c;
+			getline(cin, c);
+			RSA rsa(p, q);
+			rsa.decode(c);
+			rsa.show(1);
+		}
+		if (i == 3) {
+			cout << "开始生成：" << endl;
+			int primeNum[303];
+			ifstream infile("prime2k.txt");
+			int k = 0;
+			while (infile >> primeNum[k])
+				k++;
+			bi temp;
+			int count = 0;
+			bool re = true;
+			bi TWO("2");
+			while (true) {
+				if (re) {
+					temp.random(512);
+					re = false;
+				}
+				temp = temp + TWO;
+				temp.out();
+				int cur;
+				for (cur = 0; cur < 303; cur++)
+				{
+					if ((temp%primeNum[cur]) == 0)
+						break;
+				}
+				if (cur == 303 && isPrime(temp)) {
+					cout << "是素数！" << endl;
+					count++;
+					re = true;
+				}
+				if (count == 2)
+					break;
+			}
+		}
+		cout << "请输入0-3：" << endl;
+		cin >> i;
+	}
+
+}
