@@ -1,0 +1,147 @@
+#include<iostream>
+#include<string>
+using namespace std;
+char *encodeTable = new char[26];
+char *decodeTable = new char[26];
+
+void setTable(string key,char enTable[],char deTable[])
+{
+	for (int i = 0; i < 26; i++)
+	{
+		cout << char(65 + i) << " ";
+	}
+	cout << endl;
+	int kl = key.length();
+	int sl = 0;
+	char *s = new char[kl];
+	for (int i = 0; i < kl; i++)
+	{
+		bool in = true;
+		for (int j = 0; j < i; j++)
+		{
+			if (s[j] == key[i])
+			{
+				in = false;
+			}
+		}
+		if (in)
+		{
+			s[i] = key[i];
+			sl++;
+		}
+	}
+	char ch = 'A';
+	for (int i = 0; i < 26; i++)
+	{
+		if (i < sl)
+		{
+			enTable[i] = s[i];
+		}
+		if (i >= sl)
+		{
+			for (int j = 0; j < i; j++)
+			{
+				if (enTable[j] == ch)
+				{
+					ch++;
+					j = -1;
+				}
+			}
+			enTable[i] = ch;
+			ch++;
+		}
+		cout << enTable[i] << " ";
+	}
+	cout << endl;
+	for (int i = 0; i < 26; i++)
+	{
+		deTable[enTable[i] - 65] = 'A' + i;
+	}
+	for (int i = 0; i < 26; i++)
+	{
+		cout << deTable[i] << " ";
+	}
+
+}
+
+// 移位密码
+string encodeShiftCipher(string message,int key)
+{
+	int len = message.size();
+	string cipher(message) ;
+	for (int i = 0; i < len; i++)
+	{
+		string temp;
+		if (message[i] >= 65 && message[i] <= 90)
+		{
+			cipher[i] = (cipher[i] - 65 + key + 26) % 26 + 65;
+		}
+		if (message[i] >= 97 && message[i] <= 122)
+		{
+			cipher[i] = (cipher[i] - 97 + key + 26) % 26 + 97;
+		}
+
+	}
+	return cipher;
+}
+string decodeShiftCipher(string cipher, int key)
+{
+	int len = cipher.size();
+	string message(cipher);
+	for (int i = 0; i < len; i++)
+	{
+		string temp;
+		if (message[i] >= 65 && message[i] <= 90)
+		{
+			message[i] = (message[i] - 65 - key + 26) % 26 + 65;
+		}
+		if (message[i] >= 97 && message[i] <= 122)
+		{
+			message[i] = (message[i] - 97 - key + 26) % 26 + 97;
+		}
+
+	}
+	return message;
+}
+// 单表置换密码
+string encodeSingleTable(string message, char table[])
+{
+	int lenth = message.size();
+	string cipher(message);
+	for (int i = 0; i < lenth; i++)
+	{
+		if (message[i] >= 65 && message[i] <= 90)
+		{
+			cipher[i] = table[message[i] - 65];
+		}
+	}
+	return cipher;
+}
+string decodeSingleTable(string cipher,char table[])
+{
+	int lenth = cipher.size();
+	string message(cipher);
+	for (int i = 0; i < lenth; i++)
+	{
+		if (message[i] >= 65 && message[i] <= 90)
+		{
+			message[i] = table[cipher[i] - 65];
+		}
+	}
+	return message;
+}
+
+int main()
+{
+	string test = "HELLO WORLD!";
+	string message(test);
+	string singleTableKey = "WDNMD";
+	setTable(singleTableKey, encodeTable, decodeTable);
+	cout << endl << "the message is: " << test;
+	cout << endl << "the message after ShiftCipher(key = 3) is: " << encodeShiftCipher(message, 3);
+
+	cout << endl << "the message after singleTable(key = WDNMD) is: " << encodeSingleTable(message,encodeTable);
+	cout << endl << "the cipher after singleTable(key = WDNMD) is: " << decodeSingleTable(encodeSingleTable(message, encodeTable), decodeTable);
+	system("pause");
+	return 0;
+}
